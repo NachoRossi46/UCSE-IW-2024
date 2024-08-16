@@ -1,33 +1,54 @@
-import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { LinearProgress } from '@mui/material';
+import { useCallback, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from './redux/hooks';
+import { logOut, setUserAction } from './redux/user/slice';
+import { getErrorSelector, getUserIsSet, getUserSelector } from './redux/user/selector';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const dispatch = useAppDispatch();
 
+  const userIsSet = useAppSelector(getUserIsSet);
+  const userError = useAppSelector(getErrorSelector);
+
+  const currentUser = useAppSelector(getUserSelector);
+
+  const logout = useCallback(() => {
+    dispatch(logOut());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user && !expiredToken()) {
+      dispatch(setUserAction(user));
+    } else {
+      dispatch(logOut());
+    }
+  }, [dispatch, logout]);
+
+  useEffect(() => {
+    if (currentUser) {
+      const expirationDate = new Date(currentUser.jwt.exp * 1000);
+      const remainingTime = expirationDate.getTime() - new Date().getTime();
+      logoutTimer = setTimeout(logout, remainingTime);
+    } else {
+      clearTimeout(logoutTimer);
+    }
+  }, [currentUser, dispatch, logout]);
+
+  if (!userIsSet) {
+    if (userError) {
+      dispatch(logOut());
+    }
+
+    return <LinearProgress />;
+  }
+  
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      
     </>
   )
 }

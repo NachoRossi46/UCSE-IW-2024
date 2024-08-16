@@ -1,10 +1,33 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { Provider } from 'react-redux';
+// import { store } from './redux/store';
+// import { getMuiTheme } from './theme/theme';
+import { ThemeProvider as ThemeProviderLegacy } from '@mui/styles';
+import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import './index.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// const theme = getMuiTheme();
+const queryClient = new QueryClient();
+
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(
+  // <ThemeProviderLegacy theme={theme}>
+  //   <ThemeProvider theme={theme}>
+      <StyledEngineProvider injectFirst>
+        {/* <Provider store={store}> */}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <QueryClientProvider client={queryClient}>
+            <App />
+          </QueryClientProvider>
+        </LocalizationProvider>
+        {/* </Provider> */}
+      </StyledEngineProvider>
+  //   </ThemeProvider>
+  // </ThemeProviderLegacy>
+);
