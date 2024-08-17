@@ -1,7 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { User } from '../../types/types';
 import { removeUser, setUser } from '@/src/auth/authHelper';
-// import { showError, showMessage } from '../../components/snackbars/AppSnackbar';
 import "toastify-js/src/toastify.css";
 import Toastify from 'toastify-js';
 
@@ -9,21 +8,23 @@ type InitialState = {
   userState: UserState;
 };
 
-export type UserState = {
+export interface UserState {
   authenticated: boolean;
   authenticating: boolean;
-  userIsSet: boolean;
   error: boolean;
+  isUserSet: boolean;
   user?: User;
-};
+  passwordChanged: boolean;
+}
 
 const initialState = {
   userState: {
     authenticated: false,
     authenticating: false,
     error: false,
+    isUserSet: false,
     user: undefined,
-    userIsSet: false
+    passwordChanged: false,
   } as UserState
 } as InitialState;
 
@@ -53,7 +54,8 @@ export const user = createSlice({
           authenticated: true,
           error: false,
           authenticating: false,
-          userIsSet: true
+          passwordChanged: false,
+          isUserSet: true
         }
       };
     },
@@ -83,13 +85,27 @@ export const user = createSlice({
           authenticated: !!action.payload,
           authenticating: false,
           error: false,
-          userIsSet: true
+          isUserSet: true,
+          passwordChanged: false
+        }
+      };
+    },
+    passwordChangedAction: (state) => {
+      return {
+        userState: {
+          ...state.userState,
+          authenticated: false,
+          authenticating: false,
+          error: false,
+          isUserSet: true,
+          user: undefined,
+          passwordChanged: true
         }
       };
     }
   }
 });
 
-export const { logOut, logInRequest, logInDone, logInError, setUserAction } = user.actions;
+export const { logOut, logInRequest, logInDone, logInError, setUserAction, passwordChangedAction } = user.actions;
 export default user.reducer;
 

@@ -1,3 +1,4 @@
+import { getCurrentUser } from './../auth/authHelper';
 import axios from 'axios';
 import { APIResult, ChangePassword, User } from '../types/types';
 // import { getCurrentUser } from '../auth/authHelper';
@@ -15,11 +16,11 @@ class LoginAPI {
   }
 
   httpSecure() {
-    // const user = getCurrentUser();
+    const user = getCurrentUser();
 
     const headers = {
       'Content-type': 'application/json',
-      // Authorization: user.token
+      Authorization: user.token
     };
 
     return axios.create({
@@ -40,7 +41,7 @@ class LoginAPI {
   }
 
   async changePassword(data: ChangePassword): Promise<APIResult<void>> {
-    // const user = getCurrentUser();
+    const user = getCurrentUser();
     return this.httpSecure().post(
       `/security/change-password`,
       {
@@ -49,7 +50,7 @@ class LoginAPI {
       },
       {
         headers: {
-          // Authorization: user.token,
+          Authorization: user.token,
           'Content-Type': 'application/json'
         }
       }

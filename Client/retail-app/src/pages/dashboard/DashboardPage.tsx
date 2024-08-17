@@ -1,4 +1,4 @@
-import { NavBar } from '@/src/components/layout/NavBar';
+import { NavBar } from '../../components/layout/NavBar';
 import React from 'react';
 
 export const DashboardPage = () => {

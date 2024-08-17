@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import { lusitana } from '../UI/fonts';
 import {
   FormattedCustomersTable,
 } from '../lib/definitions';
@@ -12,7 +11,7 @@ export const CustomersTable = ({
 }) => {
   return (
     <div className="w-full">
-      <h1 className={`${lusitana.className} mb-8 text-xl md:text-2xl`}>
+      <h1 className={`mb-8 text-xl md:text-2xl`}>
         Customers
       </h1>
       <Search placeholder="Search customers..." />

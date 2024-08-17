@@ -1,6 +1,4 @@
 import jwtDecode from 'jwt-decode';
-import { HttpStatusCode } from 'axios';
-// import { showError } from '../components/snackbars/AppSnackbar';
 import { APIError, User, UserJwtPayload } from '../types/types';
 
 const USER_LOCAL_KEY = 'sorteos_key';
@@ -14,11 +12,11 @@ export const removeUser = () => {
   localStorage.removeItem(USER_LOCAL_KEY);
 };
 
-// export const getCurrentUser = () => {
-//   var jwt = localStorage.getItem(USER_LOCAL_KEY);
-//   if (jwt !== null) return JSON.parse(jwt);
-//   else return null;
-// };
+export const getCurrentUser = () => {
+  var jwt = localStorage.getItem(USER_LOCAL_KEY);
+  if (jwt !== null) return JSON.parse(jwt);
+  else return null;
+};
 
 // export const expiredToken = (): boolean => {
 //   var user = getCurrentUser();

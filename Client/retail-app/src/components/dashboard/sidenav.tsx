@@ -1,9 +1,6 @@
-import Link from 'next/link';
-import NavLinks from '@/components/ui/dashboard/nav-links';
-import AcmeLogo from '@/components/ui/acme-logo';
 import { PowerIcon } from '@heroicons/react/24/outline';
-import Image from 'next/image';
 import { CardWithBackground } from './cards';
+import NavLinks from './nav-links';
 
 export default function SideNav() {
   return (
