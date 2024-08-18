@@ -1,10 +1,10 @@
+import { useAuthStore } from '@/store/auth/auth.store';
 import axios from 'axios';
-import { useAuthStore } from '../store/auth/auth.store';
 
 
 const loginAPI = axios.create({
-  // baseURL: process.env.REACT_APP_API_URL,
-  baseURL: 'http://localhost:3000/api',
+  baseURL: process.env.REACT_APP_API_URL,
+  // baseURL: 'http://localhost:3000/api',
   headers: {
     'Content-Type': 'application/json',
   },

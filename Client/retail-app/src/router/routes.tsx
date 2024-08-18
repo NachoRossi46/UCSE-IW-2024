@@ -28,6 +28,7 @@ export const routes = createBrowserRouter([
       },
       /// Auth Routes
       {
+        
         path: 'auth',
         element: <AuthLayout />,
         children: [
