@@ -6,7 +6,8 @@ import {
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { lusitana } from "../ui/fonts";
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
+import { Link } from "@mui/material";
 
 interface LoginFormProps {
   onLoginSuccess: () => void;
@@ -93,6 +94,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
             </div>
           </div>
         </div>
+        {/* <Link component={<Landing} to={} sx={{ color: "#ffff" }}>
+          ¿Olvidó su contraseña?
+        </Link> */}
         <Button className="mt-4 w-full">
           Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
         </Button>
