@@ -6,6 +6,7 @@ import {
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { lusitana } from "../ui/fonts";
+import Cookies from 'js-cookie'
 
 interface LoginFormProps {
   onLoginSuccess: () => void;
@@ -28,8 +29,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
 
       if (response.ok) {
         const data = await response.json();
+        Cookies.set("token", data.token, { expires: 1 }); // Set the token in a cookie for 1 day
         // Guarda el token en localStorage o en un estado global
-        localStorage.setItem("token", data.token);
+        // localStorage.setItem("token", data.token);
         onLoginSuccess();
       } else {
         // Maneja el error
