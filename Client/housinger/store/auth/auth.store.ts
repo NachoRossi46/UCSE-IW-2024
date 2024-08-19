@@ -1,8 +1,7 @@
 import { StateCreator, create } from 'zustand';
 import type { AuthStatus, User } from '../../interfaces';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, LoginResponse } from '../../services/auth.service';
 import { devtools, persist } from 'zustand/middleware';
-
 
 export interface AuthState {
 
@@ -10,7 +9,7 @@ export interface AuthState {
   token?: string;
   user?: User;
 
-  loginUser: (email: string, password: string) => Promise<void>;
+  loginUser: (email: string, password: string) => Promise<LoginResponse>;
   checkAuthStatus: () => Promise<void>;
   logout: () => void;
 }
@@ -20,11 +19,14 @@ const storeApi: StateCreator<AuthState> = (set) => ({
   token: undefined,
   user: undefined,
 
-  loginUser: async (email: string, password: string) => {
+  loginUser: async (email: string, password: string): Promise<LoginResponse> => {
     try {
-      const { token, ...user } = await AuthService.login(email, password);
-      set({ status: 'Authorized', token, user })
-
+      const resp = await AuthService.login(email, password);
+      set({ status: 'Authorized', token: resp.token, user: {
+        id: resp.user_id,
+        email: resp.email
+      } })
+      return resp;
     } catch (error) {
       set({ status: 'Unauthorized', token: undefined, user: undefined })
       throw 'Unauthorized'
@@ -33,14 +35,17 @@ const storeApi: StateCreator<AuthState> = (set) => ({
   checkAuthStatus: async () => {
     try {
       const { token, ...user } = await AuthService.checkStatus();
-      set({ status: 'Authorized', token, user })
+      set({ status: 'Authorized', token, user: {
+        id: user.user_id,
+        email: user.email
+      } });
     } catch (error) {
-      set({ status: 'Unauthorized', token: undefined, user: undefined })
+      set({ status: 'Unauthorized', token: undefined, user: undefined });
     }
   },
   logout: () => {
-    set({ status: 'Unauthorized', token: undefined, user: undefined })
-  }
+    set({ status: 'Unauthorized', token: undefined, user: undefined });
+  },
 });
 
 export const useAuthStore = create<AuthState>()(
