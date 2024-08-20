@@ -16,6 +16,7 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = [
+    'usuarios',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -25,7 +26,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken', 
-    'usuarios',
 ]
 
 MIDDLEWARE = [
