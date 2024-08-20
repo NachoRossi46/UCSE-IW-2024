@@ -55,7 +55,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
 
   const signupMutation = useMutation(
     ({ email, nombre, apellido, password }: SignupFormData) =>
-      fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}auth/registro/`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/auth/registro/`, {
         // fetch(`http://localhost:8000/auth/registro/`, {
         method: "POST",
         headers: {
