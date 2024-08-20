@@ -55,7 +55,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
 
   const signupMutation = useMutation(
     ({ email, nombre, apellido, password }: SignupFormData) =>
-      fetch("http://localhost:8000/auth/registro/", {
+      fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}auth/registro/`, {
+        // fetch(`http://localhost:8000/auth/registro/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +96,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
     <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
         <h1 className={`${lusitana.className} mb-3 text-2xl`}>
-          Please sign up to continue.
+          Registrese para poder ingresar.
         </h1>
         <div className="w-full">
           <div>
