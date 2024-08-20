@@ -21,16 +21,16 @@ interface SignupFormProps {
 
 interface SignupFormData {
   email: string;
-  name: string;
-  lastName: string;
+  nombre: string;
+  apellido: string;
   password: string;
   confirmPassword: string;
 }
 
 const schema = yup.object().shape({
   email: yup.string().email("Email no valido").required("Email es obligatorio"),
-  name: yup.string().required("El nombre es obligatorio"),
-  lastName: yup.string().required("El apellido es obligatorio"),
+  nombre: yup.string().required("El nombre es obligatorio"),
+  apellido: yup.string().required("El apellido es obligatorio"),
   password: yup
     .string()
     .min(8, "La contraseña debe tener mínimo 8 caracteres.")
@@ -39,7 +39,7 @@ const schema = yup.object().shape({
     .string()
     .oneOf([yup.ref("password"), ""], "Las contraseñas deben coincidir")
     .required("Debes confirmar la nueva contraseña.")
-    .min(8, "La contraseña debe tener mínimo 8 caracteres."),
+    // .min(8, "La contraseña debe tener mínimo 8 caracteres."),
 });
 
 const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
@@ -47,19 +47,20 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
     register,
     control,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<SignupFormData>({
     resolver: yupResolver(schema),
   });
 
   const signupMutation = useMutation(
-    ({ email, name, lastName, password }: SignupFormData) =>
+    ({ email, nombre, apellido, password }: SignupFormData) =>
       fetch("http://localhost:8000/auth/registro/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, name, lastName, password, rol: 4 }),
+        body: JSON.stringify({ email, nombre, apellido, password, rol: 4 }),
       }).then((response) => {
         if (!response.ok) {
           throw new Error("Signup failed");
@@ -78,6 +79,15 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
   );
 
   const onSubmit = (data: SignupFormData) => {
+    if (data.password !== data.confirmPassword) {
+      setError("confirmPassword", {
+        type: "manual",
+        message: "Las contraseñas no coinciden",
+      });
+      return;
+    }
+
+    // Si las contraseñas coinciden, procede con el registro
     signupMutation.mutate(data);
   };
 
@@ -123,13 +133,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
                 className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
                 id="name"
                 type="text"
-                {...register("name")}
+                {...register("nombre")}
                 placeholder="Ingrese su nombre"
               />
               <FaceSmileIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
-            {errors.name && (
-              <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+            {errors.nombre && (
+              <p className="text-red-500 text-xs mt-1">{errors.nombre.message}</p>
             )}
           </div>
           <div className="mt-4">
@@ -144,14 +154,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
                 className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
                 id="lastName"
                 type="text"
-                {...register("lastName")}
+                {...register("apellido")}
                 placeholder="Ingrese su apellido"
               />
               <FaceSmileIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
-            {errors.lastName && (
+            {errors.apellido && (
               <p className="text-red-500 text-xs mt-1">
-                {errors.lastName.message}
+                {errors.apellido.message}
               </p>
             )}
           </div>
@@ -200,9 +210,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignupSuccess }) => {
                   />
                   <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
                 </div>
-                {errors.password && (
+                {errors.confirmPassword && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.password.message}
+                    {errors.confirmPassword.message}
                   </p>
                 )}
               </div>

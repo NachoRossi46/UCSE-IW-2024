@@ -19,9 +19,25 @@ export const SignupLayout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="bg-gray-100 flex justify-center items-center h-screen">
       <div className="w-1/2 h-screen hidden lg:flex lg:flex-col items-center justify-center bg-indigo-700">
+        {/* <div className="pixels-photo">
+          <a
+            href="https://500px.com/photo/77888323/living-by-arild-aarnes"
+            id="Living by Arild Aarnes on 500px.com"
+          >
+            <img
+              src="https://drscdn.500px.org/photo/77888323/q%3D80_m%3D600/v2?sig=cd5b26acda59ddcc45082c69beb4e7dbe4ea79e316a971f3e0cc82a195da11f7"
+              alt="Living by Arild Aarnes on 500px.com"
+            />
+          </a>
+        </div>
+
+        <script
+          type="text/javascript"
+          src="https://500px.com/embed.js"
+        ></script> */}
         {/* <span className="text-white font-bold text-9xl">Zustand</span> */}
         <img
-          src="https://placehold.co/1440/0070F3/ffffff.png?text=Housinger&font=Montserrat"
+          src="./frontb&w.jpg"
           alt="Placeholder Image"
           className="object-cover w-full h-full"
         />

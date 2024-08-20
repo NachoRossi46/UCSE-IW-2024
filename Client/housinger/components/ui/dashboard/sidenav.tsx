@@ -9,7 +9,7 @@ import LogoutButton from "./logout";
 export default function SideNav() {
   return (
     <div className="flex h-full flex-col px-3 py-4 md:py-6">
-      <CardWithBackground img="/cat.png" alt="a" />
+      <CardWithBackground img="/sidenav.jpeg" alt="a" />
       {/*<Link
         className="relative mb-2 flex h-20 items-end justify-start rounded-md overflow-hidden md:h-40"
         href="/"
