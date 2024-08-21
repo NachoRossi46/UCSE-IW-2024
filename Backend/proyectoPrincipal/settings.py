@@ -121,26 +121,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
+CORS_ALLOW_METHODS = ['*']
 
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
+CORS_ALLOW_HEADERS = ['*']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -160,7 +143,7 @@ LOGOUT_REDIRECT_URL = 'home'
 if 'RENDER' in os.environ:
     print("USING RENDER.COM SETTINGS!")
     DEBUG = False
-    ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME')]
+    ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME'),'ucse-iw-2024.onrender.com','iw-front.vercel.app',]
     DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
     MIDDLEWARE.insert(MIDDLEWARE.index('django.middleware.security.SecurityMiddleware') + 1,
                       'whitenoise.middleware.WhiteNoiseMiddleware')
