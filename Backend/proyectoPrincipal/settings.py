@@ -12,7 +12,7 @@ SECRET_KEY = 'django-insecure-bhu!m5tg5x_5^e2-dmqtu0*%5t!g9b*cvr6c)b@7zmr-3z(z^!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ucse-iw-2024.onrender.com', 'iw-front.vercel.app']
+ALLOWED_HOSTS = ['ucse-iw-2024.onrender.com', 'iw-front.vercel.app', '127.0.0.1', 'localhost']
 
 
 INSTALLED_APPS = [
@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken', 
+    'propiedades',
 ]
 
 MIDDLEWARE = [
@@ -135,10 +136,6 @@ REST_FRAMEWORK = {
     #    'rest_framework.permissions.IsAuthenticated',
     #],
 }
-
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'home'
 
 if 'RENDER' in os.environ:
     print("USING RENDER.COM SETTINGS!")

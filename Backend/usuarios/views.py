@@ -9,29 +9,6 @@ from django.core.exceptions import ValidationError
 from .models import User, Rol
 from .serializers import UserSerializer, UserRegistrationSerializer
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm
-
-
-def home(request):
-    return render(request, 'usuarios/home.html')
-
-@login_required
-def dashboard(request):
-    return render(request, 'usuarios/dashboard.html')
-
-def registro(request):
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = UserRegistrationForm()
-    return render(request, 'usuarios/registro.html', {'form': form})
-
-""" """
 
 class AuthViewSet(viewsets.GenericViewSet):
     permission_classes = [AllowAny]
