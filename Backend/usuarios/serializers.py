@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import User, Rol
-from propiedades.models import Edificio, Departamento
+from propiedades.models import Edificio
 
 
 class RolSerializer(serializers.ModelSerializer):
@@ -46,33 +46,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     rol = serializers.PrimaryKeyRelatedField(queryset=Rol.objects.exclude(rol='Administrador'), required=True)
     edificio = serializers.PrimaryKeyRelatedField(queryset=Edificio.objects.all(), required=True)
-    departamento = serializers.PrimaryKeyRelatedField(queryset=Departamento.objects.none(), required=False, allow_null=True)
+    piso = serializers.IntegerField(required=False, allow_null=True)
+    numero = serializers.CharField(max_length=10, required=False, allow_null=True)
 
     class Meta:
         model = User
-        fields = ['email', 'nombre', 'apellido', 'password', 'rol', 'edificio', 'departamento']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if 'data' in kwargs and 'edificio' in kwargs['data']:
-            edificio = kwargs['data']['edificio']
-            self.fields['departamento'].queryset = Departamento.objects.filter(idEdificio=edificio, idOcupante__isnull=True)
+        fields = ['email', 'nombre', 'apellido', 'password', 'rol', 'edificio', 'piso', 'numero']
 
     def validate(self, attrs):
-        edificio = attrs.get('edificio')
-        departamento = attrs.get('departamento')
+        piso = attrs.get('piso')
+        numero = attrs.get('numero')
 
-        if departamento:
-            if departamento.idEdificio != edificio:
-                raise serializers.ValidationError("El departamento seleccionado no pertenece al edificio elegido.")
-            if departamento.idOcupante is not None:
-                raise serializers.ValidationError("El departamento seleccionado ya está ocupado.")
+        if (piso is None and numero is not None) or (piso is not None and numero is None):
+            raise serializers.ValidationError("Debe proporcionar tanto el piso como el número, o ninguno de los dos.")
 
         return attrs
 
 
     def create(self, validated_data):
-        departamento = validated_data.pop('departamento', None)
         user = User.objects.create_user(
             email=validated_data['email'],
             nombre=validated_data['nombre'],
@@ -80,15 +71,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             rol=validated_data['rol'],
             edificio=validated_data['edificio'],
+            piso=validated_data.get('piso'),
+            numero=validated_data.get('numero'),
             is_active=False,
             is_staff=False
         )
-        if departamento:
-            user.departamento = departamento
-            departamento.idOcupante = user
-            departamento.ocupaDepto = True
-            departamento.save()
-        user.save()
         return user
 
 
