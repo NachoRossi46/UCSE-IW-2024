@@ -1,5 +1,4 @@
 from django.db import models
-from usuarios.models import User
 from django.core.exceptions import ValidationError
 
 class Edificio(models.Model):
@@ -12,8 +11,8 @@ class Edificio(models.Model):
         return f"{self.nombre} - {self.direccion} {self.numero}"
     
 class Departamento(models.Model):
-    idDuenio = models.ForeignKey(User, related_name='departamentos_duenio', on_delete=models.SET_NULL, null=True, blank=True)
-    idOcupante = models.ForeignKey(User, related_name='departamentos_ocupante', on_delete=models.SET_NULL, null=True, blank=True)
+    idDuenio = models.ForeignKey('usuarios.User', related_name='departamentos_duenio', on_delete=models.SET_NULL, null=True, blank=True)
+    idOcupante = models.ForeignKey('usuarios.User', related_name='departamentos_ocupante', on_delete=models.SET_NULL, null=True, blank=True)
     piso = models.IntegerField()
     numero = models.CharField(max_length=10)
     idEdificio = models.ForeignKey(Edificio, related_name='departamentos', on_delete=models.CASCADE)

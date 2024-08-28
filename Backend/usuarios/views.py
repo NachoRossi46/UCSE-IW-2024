@@ -6,8 +6,10 @@ from rest_framework.decorators import action
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import ValidationError
-from .models import User, Rol
+from .models import User
 from .serializers import UserSerializer, UserRegistrationSerializer
+from propiedades.models import Departamento
+from propiedades.serializers import DepartamentoSerializer
 
 
 class AuthViewSet(viewsets.GenericViewSet):
@@ -29,6 +31,16 @@ class AuthViewSet(viewsets.GenericViewSet):
                 "message": "Usuario creado exitosamente. Por favor, espere la activación de su cuenta."
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['GET'])
+    def departamentos_disponibles(self, request):
+        edificio_id = request.query_params.get('edificio_id')
+        if not edificio_id:
+            return Response([], status=status.HTTP_200_OK)
+        
+        departamentos = Departamento.objects.filter(idEdificio=edificio_id, idOcupante__isnull=True)
+        serializer = DepartamentoSerializer(departamentos, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['POST'])
     def login(self, request):

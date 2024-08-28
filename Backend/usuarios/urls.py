@@ -13,5 +13,6 @@ urlpatterns = [
     path('registro/', AuthViewSet.as_view({'post': 'registro'}), name='user-registro'),
     path('login/', AuthViewSet.as_view({'post': 'login'}), name='user-login'),
     path('logout/', AuthViewSet.as_view({'post': 'logout'}), name='user-logout'),
+    path('departamentos-disponibles/', AuthViewSet.as_view({'get': 'departamentos_disponibles'}), name='departamentos-disponibles'),
 ]
 

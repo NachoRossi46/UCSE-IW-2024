@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
+from propiedades.models import Edificio, Departamento
 
 
 class CustomUserManager(BaseUserManager):
@@ -47,6 +48,8 @@ class User(AbstractUser):
     apellido = models.CharField(max_length=100)
     email = models.EmailField(unique=True, blank=False, null=False)
     rol = models.ForeignKey(Rol, on_delete=models.CASCADE, related_name='usuarios')
+    edificio = models.ForeignKey(Edificio, on_delete=models.SET_NULL, null=True, related_name='usuarios')
+    departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True, related_name='usuarios_ocupantes')
 
     username = None
     first_name = None
