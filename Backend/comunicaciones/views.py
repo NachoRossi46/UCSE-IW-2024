@@ -1,6 +1,8 @@
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
+from django_filters import rest_framework as filters
+from rest_framework.filters import OrderingFilter
 from .models import Posteo, TipoPosteo
 from .serializers import PosteoSerializer, TipoPosteoSerializer
 
@@ -12,11 +14,22 @@ class IsAuthenticatedWithCustomMessage(permissions.IsAuthenticated):
 
     def message(self, request):
         return "ERROR, no estas autenticado."
+    
+class PosteoFilter(filters.FilterSet):
+    tipo_posteo = filters.CharFilter(field_name='tipo_posteo__tipo')
+    usuario = filters.CharFilter(field_name='usuario__email')
 
+    class Meta:
+        model = Posteo
+        fields = ['tipo_posteo', 'usuario']
 
 class PosteoViewSet(viewsets.ModelViewSet):
     serializer_class = PosteoSerializer
     permission_classes = [IsAuthenticatedWithCustomMessage]
+    filterset_class = PosteoFilter
+    filter_backends = [filters.DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ['fecha_creacion']
+    ordering = ['-fecha_creacion']
 
     def get_queryset(self):
         user = self.request.user
