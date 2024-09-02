@@ -1,5 +1,6 @@
 from django.db import models
 from usuarios.models import User
+from storages.backends.s3boto3 import S3Boto3Storage
 
 class TipoPosteo(models.Model):
     TIPO_CHOICES = [
@@ -19,7 +20,7 @@ class Posteo(models.Model):
     descripcion = models.TextField()
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='posteos')
     tipo_posteo = models.ForeignKey(TipoPosteo ,on_delete=models.PROTECT, related_name='posteos')
-    imagen = models.ImageField(upload_to='posteos/', null=True, blank=True)
+    imagen = models.ImageField(upload_to='posteos/', null=True, blank=True, storage=S3Boto3Storage())
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
