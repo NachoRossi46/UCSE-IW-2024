@@ -1,8 +1,8 @@
-from rest_framework import viewsets, permissions, generics, status
+from rest_framework import viewsets, permissions, generics, status, parsers
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django_filters import rest_framework as filters
-from rest_framework.parsers import MultiPartParser, FormParser
+# from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.filters import OrderingFilter
 from .models import Posteo, TipoPosteo
 from .serializers import PosteoSerializer, TipoPosteoSerializer
@@ -33,7 +33,7 @@ class PosteoViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.DjangoFilterBackend, OrderingFilter]
     ordering_fields = ['fecha_creacion']
     ordering = ['-fecha_creacion']
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser)
 
     def get_queryset(self):
         user = self.request.user
