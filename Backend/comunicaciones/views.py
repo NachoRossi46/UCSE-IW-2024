@@ -48,17 +48,17 @@ class PosteoViewSet(viewsets.ModelViewSet):
         else:
             raise PermissionDenied("No tienes permiso para editar este posteo.")
 
-def perform_destroy(self, instance):
-    if instance.usuario == self.request.user:
-        try:
-            # Si tienes una imagen asociada, elimínala de S3
-            if instance.imagen:
-                instance.imagen.delete(save=False)
-            instance.delete()
-        except ClientError as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        raise PermissionDenied("No tienes permiso para eliminar este posteo.")
+    def perform_destroy(self, instance):
+        if instance.usuario == self.request.user:
+            try:
+                # Si tienes una imagen asociada, elimínala de S3
+                if instance.imagen:
+                    instance.imagen.delete(save=False)
+                instance.delete()
+            except ClientError as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            raise PermissionDenied("No tienes permiso para eliminar este posteo.")
     
 def handle_exception(self, exc):
         if isinstance(exc, permissions.PermissionDenied):
