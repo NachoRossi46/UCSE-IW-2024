@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_extensions',
     'storages',
+    'servicios',
 ]
 
 MIDDLEWARE = [
@@ -104,7 +105,7 @@ AUTH_USER_MODEL = 'usuarios.User'
 
 LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 USE_I18N = True
 
@@ -173,18 +174,14 @@ if 'RENDER' in os.environ:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-"""
-if 'RENDER' in os.environ:
-    print("USING RENDER.COM SETTINGS!")
-    DEBUG = False
-    ALLOWED_HOSTS = [os.environ.get('RENDER_EXTERNAL_HOSTNAME'),'ucse-iw-2024.onrender.com','iw-front.vercel.app',]
-    DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
-    MIDDLEWARE.insert(MIDDLEWARE.index('django.middleware.security.SecurityMiddleware') + 1,
-                      'whitenoise.middleware.WhiteNoiseMiddleware')
-    CSRF_TRUSTED_ORIGINS = ['https://iw-front.vercel.app']
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-"""
+# Configuracion de email
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+
 
 

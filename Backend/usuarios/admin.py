@@ -8,13 +8,13 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('email', 'is_staff', 'is_active', 'rol', 'edificio', 'piso', 'numero')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Información personal', {'fields': ('nombre', 'apellido', 'rol', 'edificio')}),
+        ('Información personal', {'fields': ('nombre', 'apellido', 'rol', 'edificio', 'piso', 'numero')}),
         ('Permisos', {'fields': ('is_staff', 'is_active')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'nombre', 'apellido', 'rol', 'edificio', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('email', 'nombre', 'apellido', 'rol', 'edificio', 'password1', 'password2', 'is_staff', 'is_active', 'piso', 'numero')}
         ),
     )
     search_fields = ('email', 'nombre', 'apellido')
