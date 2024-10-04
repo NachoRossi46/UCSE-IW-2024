@@ -8,16 +8,23 @@ class RolSerializer(serializers.ModelSerializer):
         model = Rol
         fields = ['id', 'rol']
 
+class EdificioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Edificio
+        fields = ['id', 'nombre', 'direccion', 'numero', 'ciudad']
+
 class UserSerializer(serializers.ModelSerializer):
     rol = serializers.PrimaryKeyRelatedField(queryset=Rol.objects.all(), write_only=True)
     rol_info = RolSerializer(source='rol', read_only=True)
     password = serializers.CharField(write_only=True, required=True)
-    
+    edificio = EdificioSerializer(read_only=True)
+    edificio_id = serializers.PrimaryKeyRelatedField(queryset=Edificio.objects.all(), write_only=True, required=False, allow_null=True)
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'nombre', 'apellido', 'rol', 'rol_info', 'is_active', 'is_staff', 'password']
+        fields = ['id', 'email', 'nombre', 'apellido', 'rol', 'rol_info', 'is_active', 'is_staff', 'password', 'edificio', 'edificio_id', 'piso', 'numero']
         read_only_fields = ['is_active', 'is_staff']
-
+        
     def validate_rol(self, value):
         if value.rol == 'Administrador':
             user = self.context['request'].user
@@ -26,16 +33,22 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        edificio_id = validated_data.pop('edificio_id', None)
         password = validated_data.pop('password')
         user = User.objects.create_user(**validated_data)
         user.set_password(password)
+        if edificio_id:
+            user.edificio = edificio_id
         user.save()
         return user
 
     def update(self, instance, validated_data):
+        edificio_id = validated_data.pop('edificio_id', None)
         password = validated_data.pop('password', None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        if edificio_id:
+            instance.edificio = edificio_id
         if password:
             instance.set_password(password)
         instance.save()
