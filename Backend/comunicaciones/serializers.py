@@ -68,7 +68,7 @@ class EventoSerializer(serializers.ModelSerializer):
         read_only_fields = ['usuario']
     
     def validate(self, data):
-        # Obtener los valores actuales del evento si estamos en una actualización
+        # Obtengo los valores actuales del evento si es una actualizacion
         instance = getattr(self, 'instance', None)
         fecha_inicio = data.get('fecha_inicio', instance.fecha_inicio if instance else None)
         fecha_fin = data.get('fecha_fin', instance.fecha_fin if instance else None)
@@ -79,8 +79,8 @@ class EventoSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['fecha_inicio'] = date_format(timezone.localtime(instance.fecha_inicio), format="DATETIME_FORMAT")
-        representation['fecha_fin'] = date_format(timezone.localtime(instance.fecha_fin), format="DATETIME_FORMAT")
+        representation['fecha_inicio'] = timezone.localtime(instance.fecha_inicio).strftime("%Y-%m-%d %H:%M:%S")
+        representation['fecha_fin'] = timezone.localtime(instance.fecha_fin).strftime("%Y-%m-%d %H:%M:%S")
         return representation
     
 class EventoCalendarioSerializer(serializers.ModelSerializer):
