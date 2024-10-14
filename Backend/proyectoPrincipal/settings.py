@@ -156,7 +156,7 @@ REST_FRAMEWORK = {
 # Configuración de archivos estáticos
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Configuración de AWS S3 (solo para archivos de media)
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
@@ -181,6 +181,7 @@ if 'RENDER' in os.environ:
     CSRF_TRUSTED_ORIGINS = ['https://iw-front.vercel.app']
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     STATIC_ROOT = '/opt/render/project/src/Backend/staticfiles'
+    STATICFILES_DIRS = []
     HAYSTACK_CONNECTIONS = {
         'default': {
             'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
@@ -195,6 +196,9 @@ else:
             'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
         },
     }
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
