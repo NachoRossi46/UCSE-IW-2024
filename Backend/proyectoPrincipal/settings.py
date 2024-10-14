@@ -180,6 +180,7 @@ if 'RENDER' in os.environ:
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
     CSRF_TRUSTED_ORIGINS = ['https://iw-front.vercel.app']
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATIC_ROOT = '/opt/render/project/src/Backend/staticfiles'
     HAYSTACK_CONNECTIONS = {
         'default': {
             'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
