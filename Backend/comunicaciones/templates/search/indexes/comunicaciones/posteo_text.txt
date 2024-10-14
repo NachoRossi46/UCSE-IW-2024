@@ -1,0 +1,5 @@
+{{ object.titulo }}
+{{ object.descripcion }}
+{{ object.usuario.nombre }}
+{{ object.usuario.apellido }}
+{{ object.tipo_posteo.tipo }}

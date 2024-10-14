@@ -3,6 +3,8 @@ from .models import Posteo, TipoPosteo, Respuesta, TipoEvento, Evento
 from usuarios.models import User
 from django.utils import timezone
 from django.utils.formats import date_format
+from drf_haystack.serializers import HaystackSerializer
+from .search_indexes import PosteoIndex
 
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,6 +49,20 @@ class PosteoSerializer(serializers.ModelSerializer):
         validated_data['usuario'] = self.context['request'].user
         return super().create(validated_data)
     
+class PosteoSearchSerializer(HaystackSerializer):
+    object = PosteoSerializer(read_only=True)
+
+    class Meta:
+        index_classes = [PosteoIndex]
+        fields = ['text', 'titulo', 'descripcion', 'edificio', 'object']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance.object:
+            rep['object'] = PosteoSerializer(instance.object).data
+        return rep
+
+
 class TipoEventoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoEvento
