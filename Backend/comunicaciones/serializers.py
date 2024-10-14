@@ -50,11 +50,19 @@ class PosteoSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
     
 class PosteoSearchSerializer(HaystackSerializer):
+    object = PosteoSerializer(read_only=True)
+
     class Meta:
         index_classes = [PosteoIndex]
-        fields = ['titulo', 'descripcion']
+        fields = ['text', 'titulo', 'descripcion', 'edificio', 'object']
 
-    
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance.object:
+            rep['object'] = PosteoSerializer(instance.object).data
+        return rep
+
+
 class TipoEventoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoEvento

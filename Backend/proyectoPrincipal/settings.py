@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'haystack',
     'rest_framework',
-    'drf_haystack',
     'rest_framework.authtoken', 
     'propiedades',
     'comunicaciones',
@@ -58,8 +57,6 @@ HAYSTACK_CONNECTIONS = {
         'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
     },
 }
-
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 TEMPLATES = [
     {
@@ -183,7 +180,22 @@ if 'RENDER' in os.environ:
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
     CSRF_TRUSTED_ORIGINS = ['https://iw-front.vercel.app']
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': '/opt/render/project/src/whoosh_index',
+        },
+    }
+else:
+    # Configuración local
+    HAYSTACK_CONNECTIONS = {
+        'default': {
+            'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+            'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+        },
+    }
 
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 # Configuracion de email
 

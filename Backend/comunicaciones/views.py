@@ -14,11 +14,11 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from usuarios.models import User
 from django.core.mail import send_mass_mail
-from drf_haystack.viewsets import HaystackViewSet
 from rest_framework.decorators import api_view
 from django.core.management import call_command
 from django.http import HttpResponse
-from drf_haystack.filters import HaystackFilter
+from drf_haystack.viewsets import HaystackViewSet
+from haystack.query import SearchQuerySet
 
 class IsAuthenticatedWithCustomMessage(permissions.IsAuthenticated):
     def has_permission(self, request, view):
@@ -92,11 +92,21 @@ class PosteoViewSet(viewsets.ModelViewSet):
 class PosteoSearchViewSet(HaystackViewSet):
     index_models = [Posteo]
     serializer_class = PosteoSearchSerializer
-    filter_backends = [HaystackFilter]
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(usuario__edificio=self.request.user.edificio)
+    def get_queryset(self, *args, **kwargs):
+        queryset = SearchQuerySet().models(Posteo)
+        user = self.request.user
+        
+        # Filtro por edificio si el usuario está autenticado
+        if user.is_authenticated:
+            queryset = queryset.filter(edificio=user.edificio.id)
+
+        # Aplico el termino de busqueda
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.auto_query(query)
+
+        return queryset.load_all()
 
 @api_view(['GET'])
 def rebuild_index(request):
