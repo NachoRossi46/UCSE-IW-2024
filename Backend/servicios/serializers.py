@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import TipoServicio, Servicio
-from propiedades.models import Edificio
 
 class TipoServicioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,13 +9,24 @@ class TipoServicioSerializer(serializers.ModelSerializer):
 class ServicioSerializer(serializers.ModelSerializer):
     tipo = TipoServicioSerializer(read_only=True)
     tipo_id = serializers.PrimaryKeyRelatedField(queryset=TipoServicio.objects.all(), write_only=True, source='tipo')
-    edificios = serializers.PrimaryKeyRelatedField(many=True, queryset=Edificio.objects.all())
+    edificio = serializers.PrimaryKeyRelatedField(read_only=True)
+    fecha_creacion = serializers.DateTimeField(read_only=True)
+    fecha_actualizacion = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Servicio
-        fields = ['id', 'tipo', 'tipo_id', 'nombre_proveedor', 'telefono', 'edificios']
+        fields = ['id', 'tipo', 'tipo_id', 'nombre_proveedor', 'telefono', 'edificio', 'fecha_creacion', 'fecha_actualizacion']
+        
+    def validate(self, attrs):
+        request = self.context.get('request')
+        if request and request.user.rol.rol == 'Colaborador':
+            if not request.user.edificio:
+                raise serializers.ValidationError(
+                    "El colaborador debe estar asignado a un edificio para crear servicios."
+                )
+        return attrs
 
-class ServicioEdificioSerializer(serializers.ModelSerializer):
+class ServicioListSerializer(serializers.ModelSerializer):
     tipo = TipoServicioSerializer(read_only=True)
 
     class Meta:
