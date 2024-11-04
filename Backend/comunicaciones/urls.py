@@ -12,6 +12,5 @@ urlpatterns = [
     path('tipos-posteo/', TipoPosteoListView.as_view(), name='tipo-posteo-list'),
     path('posteos/<int:posteo_pk>/respuestas/', RespuestaViewSet.as_view({'get': 'list', 'post': 'create'}), name='respuesta-list'),
     path('posteos/<int:posteo_pk>/respuestas/<int:pk>/', RespuestaViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='respuesta-detail'),
-    path('rebuild_index/', rebuild_index, name='rebuild_index'),
 
 ]

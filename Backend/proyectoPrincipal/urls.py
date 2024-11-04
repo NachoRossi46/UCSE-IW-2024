@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from comunicaciones.views import robots_txt
+from comunicaciones.views import robots_txt, rebuild_index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +27,7 @@ urlpatterns = [
     path('comunicaciones/', include('comunicaciones.urls')),
     path('servicios/', include('servicios.urls')),
     path('robots.txt', robots_txt, name='robots_txt'),
+    path('rebuild_index/', rebuild_index, name='rebuild_index'),
 ]
 
 if settings.DEBUG:

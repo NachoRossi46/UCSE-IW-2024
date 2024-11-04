@@ -121,8 +121,6 @@ def robots_txt(request):
     lines = [
         "User-agent: *",
         "Allow: /",
-        "",
-        "Sitemap: https://ucse-iw-2024.onrender.com/sitemap.xml"
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
