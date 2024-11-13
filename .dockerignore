@@ -1,0 +1,26 @@
+# Git
+.git
+.gitignore
+
+# Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/venv
+**/env
+Backend/ENV/
+
+# IDE
+.idea
+.vscode
+**/.idea
+**/.vscode
+
+# Otros
+**/*.log
+**/.DS_Store
+
+# NO ignorar la base de datos
+!Backend/db.sqlite3
