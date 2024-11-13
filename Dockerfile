@@ -2,6 +2,7 @@ FROM python:3.12-slim
 
 ENV DATABASE_PATH=/data/db.sqlite3
 ENV PYTHONUNBUFFERED=1
+ENV DOCKER=True
 
 WORKDIR /app
 

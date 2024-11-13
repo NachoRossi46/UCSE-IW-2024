@@ -80,12 +80,25 @@ WSGI_APPLICATION = 'proyectoPrincipal.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.getenv('DATABASE_PATH', BASE_DIR / 'db.sqlite3'),
+DOCKER = os.getenv('DOCKER', False)
+
+if DOCKER:
+    print("Usando configuracion DOCKER")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/data/db.sqlite3',
+        }
     }
-}
+else:
+    print("Usando desarrollo local")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 
 
 # Password validation
