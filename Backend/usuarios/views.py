@@ -8,9 +8,11 @@ from rest_framework.authtoken.models import Token
 from django.core.exceptions import ValidationError
 from .models import User
 from .serializers import UserSerializer, UserRegistrationSerializer
+from drf_spectacular.utils import extend_schema
+from .documentacion import auth_schema, user_schema
 
-
-
+@auth_schema
+@extend_schema(tags=['autenticación'])
 class AuthViewSet(viewsets.GenericViewSet):
     permission_classes = [AllowAny]
 
@@ -57,15 +59,10 @@ class AuthViewSet(viewsets.GenericViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
-
+@user_schema
+@extend_schema(tags=['usuarios'])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-
-
-
-
-
 

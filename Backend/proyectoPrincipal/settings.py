@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'storages',
     'servicios',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -148,10 +149,24 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
-    #'DEFAULT_PERMISSION_CLASSES': [
-    #    'rest_framework.permissions.IsAuthenticated',
-    #],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+SPECTACULAR_SETTINGS = {
+    'SECURITY': [
+        {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': 'Token <tu_token>'
+        }
+    ],
+    'SERVERS': [
+        {'url': 'http://tu-dominio.com', 'description': 'Servidor de producción'},
+        {'url': 'http://localhost:8000', 'description': 'Servidor local'}
+    ],
+}
+
 
 # Configuración de archivos estáticos
 STATIC_URL = '/static/'
