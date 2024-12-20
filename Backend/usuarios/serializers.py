@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import User, Rol
 from propiedades.models import Edificio
 
-
 class RolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rol
@@ -91,8 +90,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
         return user
 
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
-
-
-
-
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.UUIDField()
+    email = serializers.EmailField()
+    new_password = serializers.CharField(write_only=True)

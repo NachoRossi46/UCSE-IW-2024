@@ -1,6 +1,6 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
-from .serializers import UserSerializer, UserRegistrationSerializer
+from .serializers import UserSerializer, UserRegistrationSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 
 # Schemas para AuthViewSet
 auth_schema = extend_schema_view(
@@ -162,3 +162,43 @@ user_schema = extend_schema_view(
         }
     )
 )
+
+request_password_reset=extend_schema(
+    summary="Solicitar reseteo de contraseña",
+    description="Envía un correo con un token para resetear la contraseña",
+    request=PasswordResetRequestSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="Correo enviado exitosamente",
+            examples=[
+                OpenApiExample(
+                    "Éxito",
+                    value={
+                        "message": "Se ha enviado un correo con las instrucciones para restablecer tu contraseña."
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(description="Error en los datos proporcionados")
+    }
+),
+reset_password=extend_schema(
+    summary="Resetear contraseña",
+    description="Cambia la contraseña usando el token enviado por correo",
+    request=PasswordResetConfirmSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="Contraseña actualizada exitosamente",
+            examples=[
+                OpenApiExample(
+                    "Éxito",
+                    value={
+                        "message": "Contraseña actualizada exitosamente."
+                    }
+                )
+            ]
+        ),
+        400: OpenApiResponse(description="Token inválido o expirado")
+    }
+)
+
