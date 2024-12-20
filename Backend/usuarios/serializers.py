@@ -97,3 +97,24 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     token = serializers.UUIDField()
     email = serializers.EmailField()
     new_password = serializers.CharField(write_only=True)
+    
+class UserUpdateProfileSerializer(serializers.ModelSerializer):
+    rol_info = RolSerializer(source='rol', read_only=True)
+    edificio = EdificioSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id', 'email', 'nombre', 'apellido',  # Campos editables
+            'rol_info', 'edificio', 'piso', 'numero', 'is_active', 'is_staff'  # Campos de solo lectura
+        ]
+        read_only_fields = ['id', 'rol_info', 'edificio', 'piso', 'numero', 'is_active', 'is_staff']
+
+    def validate_email(self, value):
+        """
+        Validar que el email sea único, excluyendo el usuario actual
+        """
+        user = self.context['request'].user
+        if User.objects.filter(email=value).exclude(id=user.id).exists():
+            raise serializers.ValidationError("Este email ya está en uso.")
+        return value

@@ -9,7 +9,8 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import User, PasswordResetToken
-from .serializers import UserSerializer, UserRegistrationSerializer, PasswordResetConfirmSerializer, PasswordResetRequestSerializer
+from .permisos import IsOwnerUser  
+from .serializers import UserSerializer, UserRegistrationSerializer, PasswordResetConfirmSerializer, PasswordResetRequestSerializer, UserUpdateProfileSerializer
 from drf_spectacular.utils import extend_schema
 from .documentacion import auth_schema, user_schema
 
@@ -143,5 +144,26 @@ class AuthViewSet(viewsets.GenericViewSet):
 @extend_schema(tags=['usuarios'])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsOwnerUser]
+
+    def get_serializer_class(self):
+        """
+        Usar diferentes serializers dependiendo de la acción
+        """
+        if self.action in ['update', 'partial_update']:
+            return UserUpdateProfileSerializer
+        return UserSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, 
+            data=request.data, 
+            partial=partial, 
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
