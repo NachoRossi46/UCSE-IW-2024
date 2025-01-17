@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'storages',
     'servicios',
+    'mensajeria',
     'drf_spectacular',
 ]
 

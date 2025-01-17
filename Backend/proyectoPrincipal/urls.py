@@ -12,6 +12,7 @@ urlpatterns = [
     path('propiedades/', include('propiedades.urls')),
     path('comunicaciones/', include('comunicaciones.urls')),
     path('servicios/', include('servicios.urls')),
+    path('mensajeria/', include('mensajeria.urls')),
     path('robots.txt', robots_txt, name='robots_txt'),
     path('rebuild_index/', rebuild_index, name='rebuild_index'),
     # URLs para la documentación
