@@ -1,4 +1,6 @@
 import datetime
+import logging
+import time
 from time import timezone
 from rest_framework import viewsets, permissions, generics, status, parsers
 from rest_framework.response import Response
@@ -20,6 +22,8 @@ from django.http import HttpResponse
 from drf_haystack.viewsets import HaystackViewSet
 from haystack.query import SearchQuerySet
 
+logger = logging.getLogger(__name__)
+
 class IsAuthenticatedWithCustomMessage(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         if not super().has_permission(request, view):
@@ -36,6 +40,27 @@ class PosteoFilter(filters.FilterSet):
     class Meta:
         model = Posteo
         fields = ['tipo_posteo', 'usuario']
+        
+class TimingMixin:
+    """Mixin para añadir logging de tiempos a los métodos de las vistas"""
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Medir el tiempo total de la vista
+        start_time = time.time()
+        response = super().dispatch(request, *args, **kwargs)
+        total_time = time.time() - start_time
+        
+        # Loggear el tiempo total
+        logger.info(f"{self.__class__.__name__} {request.method} {request.path}: {total_time:.4f}s")
+        
+        # Agregar tiempo a la respuesta para debugging (opcional)
+        if isinstance(response, Response) and settings.DEBUG:
+            if not response.data:
+                response.data = {}
+            if isinstance(response.data, dict):
+                response.data['processing_time'] = f"{total_time:.4f}s"
+                
+        return response
 
 class PosteoViewSet(viewsets.ModelViewSet):
     serializer_class = PosteoSerializer
@@ -47,6 +72,8 @@ class PosteoViewSet(viewsets.ModelViewSet):
     parser_classes = (parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser)
 
     def get_queryset(self):
+        # Medir el tiempo de ejecución de la consulta
+        start_time = time.time()
         user = self.request.user
         queryset = Posteo.objects.filter(usuario__edificio=user.edificio)
         
@@ -57,26 +84,45 @@ class PosteoViewSet(viewsets.ModelViewSet):
         tipo_posteo = self.request.query_params.get('tipo_posteo')
         if tipo_posteo:
             queryset = queryset.filter(tipo_posteo__tipo=tipo_posteo)
+            
+        # tiempos de consulta
+        query_time = time.time() - start_time
+        logger.info(f"PosteoViewSet.get_queryset tiempo: {query_time:.4f}s | Params: {self.request.query_params}")
         
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(usuario=self.request.user)
+        start_time = time.time()
+        instance = serializer.save(usuario=self.request.user)
+        create_time = time.time() - start_time
+        logger.info(f"PosteoViewSet.perform_create tiempo: {create_time:.4f}s | Posteo ID: {instance.id}")
 
     def perform_update(self, serializer):
+        start_time = time.time()
         if serializer.instance.usuario == self.request.user:
-            serializer.save()
+            instance = serializer.save()
+            update_time = time.time() - start_time
+            logger.info(f"PosteoViewSet.perform_update tiempo: {update_time:.4f}s | Posteo ID: {instance.id}")
         else:
             raise PermissionDenied("No tienes permiso para editar este posteo.")
 
     def perform_destroy(self, instance):
+        start_time = time.time()
         if instance.usuario == self.request.user:
             try:
                 # Si tienes una imagen asociada, elimínala de S3
                 if instance.imagen:
+                    s3_delete_start = time.time()
                     instance.imagen.delete(save=False)
+                    s3_delete_time = time.time() - s3_delete_start
+                    logger.info(f"S3 delete tiempo: {s3_delete_time:.4f}s | Posteo ID: {instance.id}")
+                
                 instance.delete()
+                total_delete_time = time.time() - start_time
+                logger.info(f"PosteoViewSet.perform_destroy tiempo total: {total_delete_time:.4f}s | Posteo ID: {instance.id}")
             except ClientError as e:
+                error_time = time.time() - start_time
+                logger.error(f"S3 ClientError: {str(e)} | Tiempo: {error_time:.4f}s")
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             raise PermissionDenied("No tienes permiso para eliminar este posteo.")
@@ -94,6 +140,7 @@ class PosteoSearchViewSet(HaystackViewSet):
     serializer_class = PosteoSearchSerializer
 
     def get_queryset(self, *args, **kwargs):
+        start_time = time.time()
         queryset = SearchQuerySet().models(Posteo)
         user = self.request.user
         
@@ -106,6 +153,9 @@ class PosteoSearchViewSet(HaystackViewSet):
         if query:
             queryset = queryset.auto_query(query)
 
+        query_time = time.time() - start_time
+        logger.info(f"PosteoSearchViewSet.get_queryset tiempo: {query_time:.4f}s | Query: {query}")
+        
         return queryset.load_all()
 
 @api_view(['GET'])
@@ -131,22 +181,35 @@ class RespuestaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedWithCustomMessage]
 
     def get_queryset(self):
-        return Respuesta.objects.filter(posteo__usuario__edificio=self.request.user.edificio)
+        start_time = time.time()
+        queryset = Respuesta.objects.filter(posteo__usuario__edificio=self.request.user.edificio)
+        query_time = time.time() - start_time
+        logger.info(f"RespuestaViewSet.get_queryset tiempo: {query_time:.4f}s")
+        return queryset
 
     def perform_create(self, serializer):
+        start_time = time.time()
         posteo_id = self.kwargs.get('posteo_pk')
         posteo = Posteo.objects.get(pk=posteo_id)
-        serializer.save(usuario=self.request.user, posteo=posteo)
+        instance = serializer.save(usuario=self.request.user, posteo=posteo)
+        create_time = time.time() - start_time
+        logger.info(f"RespuestaViewSet.perform_create tiempo: {create_time:.4f}s | Respuesta ID: {instance.id} | Posteo ID: {posteo_id}")
 
     def perform_update(self, serializer):
+        start_time = time.time()
         if serializer.instance.usuario == self.request.user:
-            serializer.save()
+            instance = serializer.save()
+            update_time = time.time() - start_time
+            logger.info(f"RespuestaViewSet.perform_update tiempo: {update_time:.4f}s | Respuesta ID: {instance.id}")
         else:
             raise PermissionDenied("No tienes permiso para editar esta respuesta.")
 
     def perform_destroy(self, instance):
+        start_time = time.time()
         if instance.usuario == self.request.user:
             instance.delete()
+            delete_time = time.time() - start_time
+            logger.info(f"RespuestaViewSet.perform_destroy tiempo: {delete_time:.4f}s | Respuesta ID: {instance.id}")
         else:
             raise PermissionDenied("No tienes permiso para eliminar esta respuesta.")
 
@@ -164,7 +227,14 @@ class TipoPosteoListView(generics.ListAPIView):
         return super().handle_exception(exc)
 
 def enviar_notificaciones_evento(evento):
+    start_time = time.time()
+    
     usuarios = User.objects.filter(edificio=evento.usuario.edificio).exclude(id=evento.usuario.id)
+    
+    query_time = time.time() - start_time
+    logger.info(f"enviar_notificaciones_evento query usuarios tiempo: {query_time:.4f}s | Cantidad usuarios: {usuarios.count()}")
+    email_start_time = time.time()
+    
     subject = f"Nuevo evento: {evento.titulo}"
     message = f"""
     Se ha creado un nuevo evento en tu edificio:
@@ -183,34 +253,75 @@ def enviar_notificaciones_evento(evento):
     # Creo una tupla para cada email
     messages = [(subject, message, from_email, [email]) for email in recipient_list]
     
-    send_mass_mail(messages, fail_silently=False)
+    try:
+        send_mass_mail(messages, fail_silently=False)
+        email_time = time.time() - email_start_time
+        logger.info(f"enviar_notificaciones_evento envío emails tiempo: {email_time:.4f}s | Emails enviados: {len(messages)}")
+    except Exception as e:
+        email_time = time.time() - email_start_time
+        logger.error(f"Error al enviar emails: {str(e)} | Tiempo: {email_time:.4f}s")
+    
+    total_time = time.time() - start_time
+    logger.info(f"enviar_notificaciones_evento tiempo total: {total_time:.4f}s | Evento ID: {evento.id}")
+
 
 class EventoViewSet(viewsets.ModelViewSet):
     serializer_class = EventoSerializer
     
     def get_queryset(self):
-        return Evento.objects.filter(usuario__edificio=self.request.user.edificio)
+        start_time = time.time()
+        queryset = Evento.objects.filter(usuario__edificio=self.request.user.edificio)
+        query_time = time.time() - start_time
+        logger.info(f"EventoViewSet.get_queryset tiempo: {query_time:.4f}s")
+        return queryset
 
     def perform_create(self, serializer):
+        start_time = time.time()
         evento = serializer.save(usuario=self.request.user)
+        save_time = time.time() - start_time
+        logger.info(f"EventoViewSet.perform_create save tiempo: {save_time:.4f}s | Evento ID: {evento.id}")
+        
+        notification_start = time.time()
         enviar_notificaciones_evento(evento)
+        notification_time = time.time() - notification_start
+        logger.info(f"EventoViewSet.perform_create notificaciones tiempo: {notification_time:.4f}s | Evento ID: {evento.id}")
+        
+        total_time = time.time() - start_time
+        logger.info(f"EventoViewSet.perform_create tiempo total: {total_time:.4f}s | Evento ID: {evento.id}")
     
     def create(self, request, *args, **kwargs):
+        start_time = time.time()
         serializer = self.get_serializer(data=request.data)
+        validation_time = time.time()
         serializer.is_valid(raise_exception=True)
+        validation_time = time.time() - validation_time
+        logger.info(f"EventoViewSet.create validación tiempo: {validation_time:.4f}s")
+        
+        perform_time = time.time()
         self.perform_create(serializer)
+        perform_time = time.time() - perform_time
+        logger.info(f"EventoViewSet.create perform_create tiempo: {perform_time:.4f}s")
+        
         headers = self.get_success_headers(serializer.data)
+        total_time = time.time() - start_time
+        logger.info(f"EventoViewSet.create tiempo total: {total_time:.4f}s")
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         
     def perform_update(self, serializer):
+        start_time = time.time()
         if serializer.instance.usuario == self.request.user:
-            serializer.save()
+            instance = serializer.save()
+            update_time = time.time() - start_time
+            logger.info(f"EventoViewSet.perform_update tiempo: {update_time:.4f}s | Evento ID: {instance.id}")
         else:
             raise PermissionDenied("No tienes permiso para editar este evento.")
         
     def perform_destroy(self, instance):
+        start_time = time.time()
         if instance.usuario == self.request.user:
             instance.delete()
+            delete_time = time.time() - start_time
+            logger.info(f"EventoViewSet.perform_destroy tiempo: {delete_time:.4f}s | Evento ID: {instance.id}")
         else:
             raise PermissionDenied("No tienes permiso para eliminar esta evento.")
         
