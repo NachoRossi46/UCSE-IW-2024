@@ -144,19 +144,20 @@ class PosteoSearchViewSet(HaystackViewSet):
         queryset = SearchQuerySet().models(Posteo)
         user = self.request.user
         
-        # Filtro por edificio si el usuario está autenticado
-        if user.is_authenticated:
-            queryset = queryset.filter(edificio=user.edificio.id)
-
-        # Aplico el termino de busqueda
         query = self.request.GET.get('q')
         if query:
             queryset = queryset.auto_query(query)
-
+        
+        # Filtro por edificio si el usuario está autenticado (después de la búsqueda)
+        if user.is_authenticated and user.edificio:
+            edificio_id = user.edificio.id
+            queryset = queryset.filter(edificio=edificio_id)
+            
         query_time = time.time() - start_time
-        logger.info(f"PosteoSearchViewSet.get_queryset tiempo: {query_time:.4f}s | Query: {query}")
+        logger.info(f"PosteoSearchViewSet.get_queryset tiempo: {query_time:.4f}s | Query: {query} | Edificio ID: {user.edificio.id if user.is_authenticated and user.edificio else 'None'}")
         
         return queryset.load_all()
+
 
 @api_view(['GET'])
 def rebuild_index(request):
