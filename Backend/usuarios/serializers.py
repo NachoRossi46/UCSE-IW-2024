@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User, Rol
 from propiedades.models import Edificio
+import re
 
 class RolSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,6 +24,19 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'nombre', 'apellido', 'rol', 'rol_info', 'is_active', 'is_staff', 'password', 'edificio', 'edificio_id', 'piso', 'numero']
         read_only_fields = ['is_active', 'is_staff']
+        
+    def validate_piso(self, value):
+        # Valido que el piso esté entre 1 y 49
+        if value is not None and (value < 1 or value > 49):
+            raise serializers.ValidationError("El piso debe estar entre 1 y 49.")
+        return value
+    
+    def validate_numero(self, value):
+        # Valido que el número sea exactamente una letra
+        if value is not None:
+            if not re.match(r'^[A-Za-z]$', value):
+                raise serializers.ValidationError("El número debe ser exactamente una letra (ej: A, B, C).")
+        return value
         
     def validate_rol(self, value):
         if value.rol == 'Administrador':
@@ -64,6 +78,19 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'nombre', 'apellido', 'password', 'rol', 'edificio', 'piso', 'numero']
+        
+    def validate_piso(self, value):
+        # Valido que el piso esté entre 1 y 49
+        if value is not None and (value < 1 or value > 49):
+            raise serializers.ValidationError("El piso debe estar entre 1 y 49.")
+        return value
+    
+    def validate_numero(self, value):
+        # Valido que el número sea exactamente una letra
+        if value is not None:
+            if not re.match(r'^[A-Za-z]$', value):
+                raise serializers.ValidationError("El número debe ser exactamente una letra (ej: A, B, C).")
+        return value
 
     def validate(self, attrs):
         piso = attrs.get('piso')
@@ -111,9 +138,7 @@ class UserUpdateProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'rol_info', 'edificio', 'piso', 'numero', 'is_active', 'is_staff']
 
     def validate_email(self, value):
-        """
-        Validar que el email sea único, excluyendo el usuario actual
-        """
+        # Validar que el email sea único, excluyendo el usuario actual
         user = self.context['request'].user
         if User.objects.filter(email=value).exclude(id=user.id).exists():
             raise serializers.ValidationError("Este email ya está en uso.")
