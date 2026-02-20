@@ -37,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
             if not re.match(r'^[A-Za-z]$', value):
                 raise serializers.ValidationError("El número debe ser exactamente una letra (ej: A, B, C).")
         return value
-        
+    
     def validate_rol(self, value):
         if value.rol == 'Administrador':
             user = self.context['request'].user

@@ -53,7 +53,7 @@ class TimingMixin:
         # Loggear el tiempo total
         logger.info(f"{self.__class__.__name__} {request.method} {request.path}: {total_time:.4f}s")
         
-        # Agregar tiempo a la respuesta para debugging (opcional)
+        # Agregar tiempo a la respuesta para debugging 
         if isinstance(response, Response) and settings.DEBUG:
             if not response.data:
                 response.data = {}
