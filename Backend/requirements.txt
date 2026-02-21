@@ -1,9 +1,8 @@
 asgiref==3.8.1
 astroid==3.2.4
 attrs==24.2.0
-boto3==1.35.9
-botocore==1.35.9
 Brotli==1.1.0
+cloudinary==1.44.1
 certifi==2024.7.4
 charset-normalizer==3.3.2
 colorama==0.4.6
@@ -12,10 +11,10 @@ dill==0.3.8
 dj-database-url==2.2.0
 Django==4.2.16
 django-cors-headers==4.4.0
+django-cloudinary-storage==0.3.0
 django-extensions==3.2.3
 django-filter==24.3
 django-haystack==3.2.1
-django-storages==1.14.4
 djangorestframework==3.14.0
 drf-haystack==1.8.13
 drf-spectacular==0.27.2
@@ -25,7 +24,6 @@ inflection==0.5.1
 isort==5.13.2
 itypes==1.2.0
 Jinja2==3.1.4
-jmespath==1.0.1
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
 MarkupSafe==2.1.5
@@ -47,7 +45,6 @@ PyYAML==6.0.2
 referencing==0.35.1
 requests==2.32.3
 rpds-py==0.21.0
-s3transfer==0.10.2
 six==1.16.0
 sqlparse==0.5.1
 tomlkit==0.13.1
