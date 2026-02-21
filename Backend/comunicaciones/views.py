@@ -11,8 +11,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import action
 from .models import Posteo, TipoPosteo, Respuesta, Evento
 from .serializers import PosteoSerializer, TipoPosteoSerializer, RespuestaSerializer, EventoSerializer, EventoCalendarioSerializer, PosteoSearchSerializer
-import boto3
-from botocore.exceptions import ClientError
+import cloudinary.uploader
 from django.conf import settings
 from usuarios.models import User
 from django.core.mail import send_mass_mail
@@ -110,19 +109,19 @@ class PosteoViewSet(viewsets.ModelViewSet):
         start_time = time.time()
         if instance.usuario == self.request.user:
             try:
-                # Si tienes una imagen asociada, elimínala de S3
+                # Si tiene imagen asociada, eliminarla de Cloudinary
                 if instance.imagen:
-                    s3_delete_start = time.time()
+                    cloudinary_delete_start = time.time()
                     instance.imagen.delete(save=False)
-                    s3_delete_time = time.time() - s3_delete_start
-                    logger.info(f"S3 delete tiempo: {s3_delete_time:.4f}s | Posteo ID: {instance.id}")
+                    cloudinary_delete_time = time.time() - cloudinary_delete_start
+                    logger.info(f"Cloudinary delete tiempo: {cloudinary_delete_time:.4f}s | Posteo ID: {instance.id}")
                 
                 instance.delete()
                 total_delete_time = time.time() - start_time
                 logger.info(f"PosteoViewSet.perform_destroy tiempo total: {total_delete_time:.4f}s | Posteo ID: {instance.id}")
-            except ClientError as e:
+            except Exception as e:
                 error_time = time.time() - start_time
-                logger.error(f"S3 ClientError: {str(e)} | Tiempo: {error_time:.4f}s")
+                logger.error(f"Error al eliminar imagen: {str(e)} | Tiempo: {error_time:.4f}s")
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             raise PermissionDenied("No tienes permiso para eliminar este posteo.")
